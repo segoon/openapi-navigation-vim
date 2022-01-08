@@ -10,7 +10,7 @@ endif
 let g:loaded_openapi_navigation = 1
 
 
-function TrimSymm(path, delimiter) abort
+function! TrimSymm(path, delimiter) abort
   if a:path[0] == a:delimiter
     if a:path[len(a:path)-1] == a:delimiter
       return a:path[1:len(a:path)-2]
@@ -19,7 +19,7 @@ function TrimSymm(path, delimiter) abort
   return a:path
 endfunction
 
-function ParseLine(line) abort
+function! ParseLine(line) abort
   let parsed = split(a:line, ':')
   if len(parsed) != 2
     return {}
@@ -48,7 +48,7 @@ function ParseLine(line) abort
 endfunction
 
 
-function g:JumpToDefinition() abort
+function! g:JumpToDefinition() abort
   if &ft != 'openapi.yaml'
     return
   endif
@@ -90,5 +90,7 @@ function g:JumpToDefinition() abort
 endfunction
 
 
-" nmap <silent> gd :call JumpToDefinition()<CR>
-" nmap <silent> <C-]> :call JumpToDefinition()<CR>
+function! openapi#navigation#SetupKeymap() abort
+  nmap <buffer> <silent> gd :call JumpToDefinition()<CR>
+  nmap <buffer> <silent> <C-]> :call JumpToDefinition()<CR>
+endfunction
