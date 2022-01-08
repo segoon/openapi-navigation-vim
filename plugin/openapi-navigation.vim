@@ -22,7 +22,6 @@ endfunction
 function ParseLine(line) abort
   let parsed = split(a:line, ':')
   if len(parsed) != 2
-  echom '7t'
     return {}
   endif
 
@@ -33,7 +32,6 @@ function ParseLine(line) abort
 
   let parts = split(path, '#', 1)
   if len(parts) != 2
-  echom '6t'
     return {}
   endif
 
@@ -51,42 +49,38 @@ endfunction
 
 
 function g:JumpToDefinition() abort
-  " TODO: substr
   if &ft != 'openapi.yaml'
     return
   endif
 
-  let line_number = line('.')
-  echom 'line_number = ' . line_number
-  let line_contents = getbufline('.', line_number)
+  let buffer_num = bufnr('%')
+  let line_num = line('.')
+  let line_contents = getbufline(buffer_num, line_num)
   if len(line_contents) == 0
-    echom '1t'
     return
   endif
+
   let line_info = ParseLine(line_contents[0])
   if len(line_info) == 0
-    echom '2t'
     return
   endif
 
   if line_info['file'] != ''
     let orig_file = line_info['file']
     if orig_file[0] == '/'
-      "error: absolute path
-      echom '3t'
+      echoerr 'Absolute path in $ref is prohibited: ' . orig_file[0]
       return
     endif
 
+    " relative to the current file directory, not vim's curdir
     let file_path = expand('%:p:h')
-    " TODO
-    " relative to current file, not vim's curdir
+    " TODO limit ../
     let fname = file_path . '/' . orig_file
   else
-    " current buffer
+    " buffer is the same
     " TODO: escape
     let fname = ''
   endif
-  echom '4t'
 
   let cmd = '+/^\\s*' . line_info.local_name . ':'
   " goto line
@@ -96,7 +90,5 @@ function g:JumpToDefinition() abort
 endfunction
 
 
-
-" TODO: debug
-nmap <silent> gd :call JumpToDefinition()<CR>
-nmap <silent> <C-]> :call JumpToDefinition()<CR>
+" nmap <silent> gd :call JumpToDefinition()<CR>
+" nmap <silent> <C-]> :call JumpToDefinition()<CR>
