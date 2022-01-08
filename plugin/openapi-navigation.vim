@@ -22,6 +22,7 @@ endfunction
 function ParseLine(line) abort
   let parsed = split(a:line, ':')
   if len(parsed) != 2
+  echom '7t'
     return {}
   endif
 
@@ -32,6 +33,7 @@ function ParseLine(line) abort
 
   let parts = split(path, '#', 1)
   if len(parts) != 2
+  echom '6t'
     return {}
   endif
 
@@ -55,21 +57,36 @@ function g:JumpToDefinition() abort
   endif
 
   let line_number = line('.')
+  echom 'line_number = ' . line_number
   let line_contents = getbufline('.', line_number)
+  if len(line_contents) == 0
+    echom '1t'
+    return
+  endif
   let line_info = ParseLine(line_contents[0])
   if len(line_info) == 0
+    echom '2t'
     return
   endif
 
   if line_info['file'] != ''
+    let orig_file = line_info['file']
+    if orig_file[0] == '/'
+      "error: absolute path
+      echom '3t'
+      return
+    endif
+
+    let file_path = expand('%:p:h')
     " TODO
     " relative to current file, not vim's curdir
-    let fname = line_info['file']
+    let fname = file_path . '/' . orig_file
   else
     " current buffer
     " TODO: escape
     let fname = ''
   endif
+  echom '4t'
 
   let cmd = '+/^\\s*' . line_info.local_name . ':'
   " goto line
